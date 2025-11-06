@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspirational Quote Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4D44DB;
+            --accent-color: #FF6584;
+            --light-color: #F8F9FA;
+            --dark-color: #212529;
+            --gray-color: #6C757D;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.1) 0%, rgba(255, 101, 132, 0.1) 90%);
+        }
+        
+        .quote-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .quote-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .quote-text {
+            font-size: 26px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .quote-author {
+            font-size: 20px;
+            font-style: italic;
+            color: var(--gray-color);
+            margin-bottom: 30px;
+            transition: opacity 0.5s ease;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        
+        .twitter { background-color: #1DA1F2; }
+        .facebook { background-color: #4267B2; }
+        .linkedin { background-color: #0077B5; }
+        
+        .social-btn:hover {
+            transform: translateY(-3px) scale(1.1);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: var(--gray-color);
+        }
+        
+        .fade-out {
+            opacity: 0;
+        }
+        
+        .fade-in {
+            opacity: 1;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .show-toast {
+            opacity: 1;
+        }
+        
+        @media (max-width: 576px) {
+            .quote-text {
+                font-size: 22px;
+            }
+            
+            .quote-author {
+                font-size: 18px;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-container">
+        <h1>Inspirational Quotes</h1>
+        <div class="quote-text fade-in" id="quote">Click the button to generate an inspirational quote!</div>
+        <div class="quote-author fade-in" id="author"></div>
+        
+        <div class="buttons-container">
+            <button class="btn btn-primary" id="generate">
+                <i class="fas fa-sync-alt"></i> New Quote
+            </button>
+            <button class="btn btn-secondary" id="favorite">
+                <i class="fas fa-heart"></i> Favorite
+            </button>
+            <button class="btn btn-accent" id="view-favorites">
+                <i class="fas fa-star"></i> My Favorites
+            </button>
+        </div>
+        
+        <div class="social-buttons">
+            <a href="#" class="social-btn twitter" id="twitter-share">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-btn facebook" id="facebook-share">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-btn linkedin" id="linkedin-share">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </div>
+        
+        <div class="footer">Refresh your mind with wisdom</div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Expanded quotes array with 50 inspirational quotes
+        const quotes = [
+            {
+                text: "The only way to do great work is to love what you do.",
+                author: "Steve Jobs"
+            },
+            {
+                text: "Believe you can and you're halfway there.",
+                author: "Theodore Roosevelt"
+            },
+            {
+                text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+                author: "Winston Churchill"
+            },
+            {
+                text: "Your time is limited, don't waste it living someone else's life.",
+                author: "Steve Jobs"
+            },
+            {
+                text: "The future belongs to those who believe in the beauty of their dreams.",
+                author: "Eleanor Roosevelt"
+            },
+            {
+                text: "In the middle of every difficulty lies opportunity.",
+                author: "Albert Einstein"
+            },
+            {
+                text: "The only limit to our realization of tomorrow is our doubts of today.",
+                author: "Franklin D. Roosevelt"
+            },
+            {
+                text: "Do not watch the clock. Do what it does. Keep going.",
+                author: "Sam Levenson"
+            },
+            {
+                text: "You are never too old to set another goal or to dream a new dream.",
+                author: "C.S. Lewis"
+            },
+            {
+                text: "The secret of getting ahead is getting started.",
+                author: "Mark Twain"
+            },
+            {
+                text: "Life is what happens when you're busy making other plans.",
+                author: "John Lennon"
+            },
+            {
+                text: "Strive not to be a success, but rather to be of value.",
+                author: "Albert Einstein"
+            },
+            {
+                text: "The best revenge is massive success.",
+                author: "Frank Sinatra"
+            },
+            {
+                text: "You miss 100% of the shots you don't take.",
+                author: "Wayne Gretzky"
+            },
+            {
+                text: "I have not failed. I've just found 10,000 ways that won't work.",
+                author: "Thomas Edison"
+            },
+            {
+                text: "Whatever you are, be a good one.",
+                author: "Abraham Lincoln"
+            },
+            {
+                text: "The mind is everything. What you think you become.",
+                author: "Buddha"
+            },
+            {
+                text: "Eighty percent of success is showing up.",
+                author: "Woody Allen"
+            },
+            {
+                text: "Life is either a daring adventure or nothing at all.",
+                author: "Helen Keller"
+            },
+            {
+                text: "Simplicity is the ultimate sophistication.",
+                author: "Leonardo da Vinci"
+            },
+            {
+                text: "Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",
+                author: "Thomas Edison"
+            },
+            {
+                text: "Don't count the days, make the days count.",
+                author: "Muhammad Ali"
+            },
+            {
+                text: "You must be the change you wish to see in the world.",
+                author: "Mahatma Gandhi"
+            },
+            {
+                text: "What you get by achieving your goals is not as important as what you become by achieving your goals.",
+                author: "Zig Ziglar"
+            },
+            {
+                text: "The only person you are destined to become is the person you decide to be.",
+                author: "Ralph Waldo Emerson"
+            },
+            {
+                text: "Everything you've ever wanted is on the other side of fear.",
+                author: "George Addair"
+            },
+            {
+                text: "We become what we think about.",
+                author: "Earl Nightingale"
+            },
+            {
+                text: "The best time to plant a tree was 20 years ago. The second best time is now.",
+                author: "Chinese Proverb"
+            },
+            {
+                text: "An unexamined life is not worth living.",
+                author: "Socrates"
+            },
+            {
+                text: "Happiness is not something readymade. It comes from your own actions.",
+                author: "Dalai Lama"
+            },
+            {
+                text: "If you want to lift yourself up, lift up someone else.",
+                author: "Booker T. Washington"
+            },
+            {
+                text: "I can't change the direction of the wind, but I can adjust my sails to always reach my destination.",
+                author: "Jimmy Dean"
+            },
+            {
+                text: "Nothing is impossible, the word itself says 'I'm possible'!",
+                author: "Audrey Hepburn"
+            },
+            {
+                text: "The only true wisdom is in knowing you know nothing.",
+                author: "Socrates"
+            },
+            {
+                text: "The journey of a thousand miles begins with one step.",
+                author: "Lao Tzu"
+            },
+            {
+                text: "That which does not kill us makes us stronger.",
+                author: "Friedrich Nietzsche"
+            },
+            {
+                text: "Life is really simple, but we insist on making it complicated.",
+                author: "Confucius"
+            },
+            {
+                text: "When you reach the end of your rope, tie a knot in it and hang on.",
+                author: "Franklin D. Roosevelt"
+            },
+            {
+                text: "You can't use up creativity. The more you use, the more you have.",
+                author: "Maya Angelou"
+            },
+            {
+                text: "Build your own dreams, or someone else will hire you to build theirs.",
+                author: "Farrah Gray"
+            },
+            {
+                text: "Remember no one can make you feel inferior without your consent.",
+                author: "Eleanor Roosevelt"
+            },
+            {
+                text: "The question isn't who is going to let me; it's who is going to stop me.",
+                author: "Ayn Rand"
+            },
+            {
+                text: "I would rather die of passion than of boredom.",
+                author: "Vincent van Gogh"
+            },
+            {
+                text: "A person who never made a mistake never tried anything new.",
+                author: "Albert Einstein"
+            },
+            {
+                text: "What's money? A man is a success if he gets up in the morning and goes to bed at night and in between does what he wants to do.",
+                author: "Bob Dylan"
+            },
+            {
+                text: "I've learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel.",
+                author: "Maya Angelou"
+            },
+            {
+                text: "Whether you think you can or you think you can't, you're right.",
+                author: "Henry Ford"
+            },
+            {
+                text: "Certain things catch your eye, but pursue only those that capture the heart.",
+                author: "Ancient Indian Proverb"
+            },
+            {
+                text: "The only thing worse than being blind is having sight but no vision.",
+                author: "Helen Keller"
+            },
+            {
+                text: "It is during our darkest moments that we must focus to see the light.",
+                author: "Aristotle"
+            }
+        ];
+
+        // DOM Elements
+        const quoteElement = document.getElementById('quote');
+        const authorElement = document.getElementById('author');
+        const generateBtn = document.getElementById('generate');
+        const favoriteBtn = document.getElementById('favorite');
+        const viewFavoritesBtn = document.getElementById('view-favorites');
+        const twitterShareBtn = document.getElementById('twitter-share');
+        const facebookShareBtn = document.getElementById('facebook-share');
+        const linkedinShareBtn = document.getElementById('linkedin-share');
+        const toastElement = document.getElementById('toast');
+        
+        // Current quote tracking
+        let currentQuote = null;
+        
+        // Initialize favorites from localStorage
+        let favorites = JSON.parse(localStorage.getItem('favoriteQuotes')) || [];
+        
+        // Generate a random quote
+        function generateQuote() {
+            // Fade out current quote
+            quoteElement.classList.add('fade-out');
+            authorElement.classList.add('fade-out');
+            
+            // After fade out completes, change quote and fade in
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                currentQuote = quotes[randomIndex];
+                quoteElement.textContent = currentQuote.text;
+                authorElement.textContent = `— ${currentQuote.author}`;
+                
+                // Update social share links
+                updateShareLinks();
+                
+                // Check if current quote is favorited
+                updateFavoriteButton();
+                
+                // Fade in new quote
+                quoteElement.classList.remove('fade-out');
+                authorElement.classList.remove('fade-out');
+                quoteElement.classList.add('fade-in');
+                authorElement.classList.add('fade-in');
+                
+                // Remove fade-in class after animation completes
+                setTimeout(() => {
+                    quoteElement.classList.remove('fade-in');
+                    authorElement.classList.remove('fade-in');
+                }, 500);
+            }, 500);
+        }
+        
+        // Update social share links with current quote
+        function updateShareLinks() {
+            if (!currentQuote) return;
+            
+            const text = `${currentQuote.text} — ${currentQuote.author}`;
+            const encodedText = encodeURIComponent(text);
+            const url = encodeURIComponent(window.location.href);
+            
+            twitterShareBtn.href = `https://twitter.com/intent/tweet?text=${encodedText}&url=${url}`;
+            facebookShareBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}`;
+            linkedinShareBtn.href = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=Inspirational%20Quote&summary=${encodedText}`;
+        }
+        
+        // Update favorite button appearance based on whether current quote is favorited
+        function updateFavoriteButton() {
+            if (!currentQuote) return;
+            
+            const isFavorited = favorites.some(q => 
+                q.text === currentQuote.text && q.author === currentQuote.author
+            );
+            
+            if (isFavorited) {
+                favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorited';
+                favoriteBtn.classList.add('btn-accent');
+                favoriteBtn.classList.remove('btn-secondary');
+            } else {
+                favoriteBtn.innerHTML = '<i class="far fa-heart"></i> Favorite';
+                favoriteBtn.classList.add('btn-secondary');
+                favoriteBtn.classList.remove('btn-accent');
+            }
+        }
+        
+        // Toggle favorite status of current quote
+        function toggleFavorite() {
+            if (!currentQuote) return;
+            
+            const index = favorites.findIndex(q => 
+                q.text === currentQuote.text && q.author === currentQuote.author
+            );
+            
+            if (index === -1) {
+                // Add to favorites
+                favorites.push(currentQuote);
+                showToast('Quote added to favorites!');
+            } else {
+                // Remove from favorites
+                favorites.splice(index, 1);
+                showToast('Quote removed from favorites!');
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('favoriteQuotes', JSON.stringify(favorites));
+            
+            // Update button appearance
+            updateFavoriteButton();
+        }
+        
+        // View favorites
+        function viewFavorites() {
+            if (favorites.length === 0) {
+                showToast('You have no favorite quotes yet!');
+                return;
+            }
+            
+            // Create a simple modal to display favorites
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.style.zIndex = '1000';
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = 'white';
+            modalContent.style.borderRadius = '15px';
+            modalContent.style.padding = '30px';
+            modalContent.style.maxWidth = '600px';
+            modalContent.style.width = '90%';
+            modalContent.style.maxHeight = '80vh';
+            modalContent.style.overflowY = 'auto';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.style.position = 'absolute';
+            closeBtn.style.top = '20px';
+            closeBtn.style.right = '20px';
+            closeBtn.style.padding = '10px 20px';
+            closeBtn.style.backgroundColor = 'var(--accent-color)';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.borderRadius = '5px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Your Favorite Quotes';
+            title.style.color = 'var(--primary-color)';
+            title.style.marginBottom = '20px';
+            title.style.textAlign = 'center';
+            
+            modalContent.appendChild(title);
+            
+            if (favorites.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = 'You have no favorite quotes yet.';
+                emptyMsg.style.textAlign = 'center';
+                modalContent.appendChild(emptyMsg);
+            } else {
+                favorites.forEach((quote, index) => {
+                    const quoteDiv = document.createElement('div');
+                    quoteDiv.style.marginBottom = '20px';
+                    quoteDiv.style.paddingBottom = '20px';
+                    if (index < favorites.length - 1) {
+                        quoteDiv.style.borderBottom = '1px solid #eee';
+                    }
+                    
+                    const quoteText = document.createElement('p');
+                    quoteText.textContent = quote.text;
+                    quoteText.style.fontSize = '18px';
+                    quoteText.style.marginBottom = '10px';
+                    
+                    const quoteAuthor = document.createElement('p');
+                    quoteAuthor.textContent = `— ${quote.author}`;
+                    quoteAuthor.style.fontStyle = 'italic';
+                    quoteAuthor.style.color = 'var(--gray-color)';
+                    quoteAuthor.style.textAlign = 'right';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Remove';
+                    removeBtn.style.padding = '8px 15px';
+                    removeBtn.style.backgroundColor = 'transparent';
+                    removeBtn.style.color = 'var(--accent-color)';
+                    removeBtn.style.border = '1px solid var(--accent-color)';
+                    removeBtn.style.borderRadius = '5px';
+                    removeBtn.style.cursor = 'pointer';
+                    removeBtn.style.marginTop = '10px';
+                    removeBtn.style.float = 'right';
+                    removeBtn.addEventListener('click', () => {
+                        favorites.splice(index, 1);
+                        localStorage.setItem('favoriteQuotes', JSON.stringify(favorites));
+                        document.body.removeChild(modal);
+                        viewFavorites();
+                        showToast('Quote removed from favorites!');
+                    });
+                    
+                    quoteDiv.appendChild(quoteText);
+                    quoteDiv.appendChild(quoteAuthor);
+                    quoteDiv.appendChild(removeBtn);
+                    modalContent.appendChild(quoteDiv);
+                });
+            }
+            
+            modal.appendChild(modalContent);
+            modal.appendChild(closeBtn);
+            document.body.appendChild(modal);
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            toastElement.textContent = message;
+            toastElement.classList.add('show-toast');
+            
+            setTimeout(() => {
+                toastElement.classList.remove('show-toast');
+            }, 3000);
+        }
+        
+        // Event Listeners
+        generateBtn.addEventListener('click', generateQuote);
+        favoriteBtn.addEventListener('click', toggleFavorite);
+        viewFavoritesBtn.addEventListener('click', viewFavorites);
+        
+        // Initialize
+        generateQuote();
+    </script>
+</body>
+</html>
